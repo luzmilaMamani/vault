@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            BigInt      @id @default(autoincrement())
+  email         String      @unique @db.VarChar(255) @map("email")
+  password_hash String      @db.Text @map("password_hash")
+  created_at    DateTime    @default(now()) @db.Timestamp(0) @map("created_at")
+  auditLogs     AuditLog[]
+  credentials   Credential[]
+
+  @@map("users")
+}
+
+model Credential {
+  id                 BigInt     @id @default(autoincrement())
+  user_id            BigInt     @map("user_id")
+  service_name       String     @db.VarChar(120) @map("service_name")
+  account_username   Bytes?     @db.Blob @map("account_username")
+  password_encrypted Bytes      @db.Blob @map("password_encrypted")
+  url                String?    @db.VarChar(500) @map("url")
+  notes              String?    @db.Text @map("notes")
+  created_at         DateTime   @default(now()) @db.Timestamp(0) @map("created_at")
+  updated_at         DateTime   @default(now()) @db.Timestamp(0) @map("updated_at")
+  auditLogs          AuditLog[]
+  user               User       @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "fk_credentials_user")
+
+  @@index([user_id], map: "idx_credentials_user_id")
+  @@map("credentials")
+}
+
+model AuditLog {
+  id            BigInt      @id @default(autoincrement())
+  user_id       BigInt      @map("user_id")
+  credential_id BigInt?     @map("credential_id")
+  action        String      @db.VarChar(60) @map("action")
+  created_at    DateTime    @default(now()) @db.Timestamp(0) @map("created_at")
+  metadata      Json?       @map("metadata")
+  credential    Credential? @relation(fields: [credential_id], references: [id], onUpdate: Restrict, map: "fk_audit_credential")
+  user          User        @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_audit_user")
+
+  @@index([credential_id], map: "fk_audit_credential")
+  @@index([user_id, created_at], map: "idx_audit_user_created_at")
+  @@map("audit_logs")
+}
