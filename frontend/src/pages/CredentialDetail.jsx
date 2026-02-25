@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getCredential } from "../api";
+import { getCredential, revealCredential } from "../api";
 
 export default function CredentialDetail() {
   const { id } = useParams();
@@ -8,6 +8,8 @@ export default function CredentialDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [revealedPassword, setRevealedPassword] = useState(null);
+  const [revealing, setRevealing] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,13 +33,30 @@ export default function CredentialDetail() {
         <div>
           <strong>Contraseña:</strong>
           <span className="pw">
-            {showPassword ? item.password : "••••••••"}
+            {showPassword ? revealedPassword || "-" : "••••••••"}
           </span>
           <button
             className="btn small"
-            onClick={() => setShowPassword((s) => !s)}
+            onClick={async () => {
+              if (showPassword) {
+                setShowPassword(false);
+                setRevealedPassword(null);
+                return;
+              }
+              setRevealing(true);
+              try {
+                const data = await revealCredential(id);
+                setRevealedPassword(data.password);
+                setShowPassword(true);
+              } catch (e) {
+                setError(e.message || "Error mostrando contraseña");
+              } finally {
+                setRevealing(false);
+              }
+            }}
+            disabled={revealing}
           >
-            {showPassword ? "Ocultar" : "Mostrar"}
+            {showPassword ? "Ocultar" : revealing ? "Cargando..." : "Mostrar"}
           </button>
         </div>
         <div>

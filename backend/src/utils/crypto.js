@@ -26,12 +26,16 @@ export function encrypt(text) {
     cipher.final(),
   ]);
   const tag = cipher.getAuthTag();
-  return Buffer.concat([iv, tag, enc]).toString("base64");
+  // return raw bytes (IV | TAG | CIPHERTEXT) so Prisma can store as Blob/Bytes
+  return Buffer.concat([iv, tag, enc]);
 }
 
 export function decrypt(payload) {
   const key = getKey();
-  const data = Buffer.from(payload, "base64");
+  // accept either a Buffer (from DB) or a base64 string
+  const data = Buffer.isBuffer(payload)
+    ? payload
+    : Buffer.from(payload, "base64");
   const iv = data.slice(0, 12);
   const tag = data.slice(12, 28);
   const cipherText = data.slice(28);

@@ -5,7 +5,11 @@ function sanitize(c) {
   return {
     id: Number(c.id),
     serviceName: c.service_name,
-    accountUsername: c.account_username,
+    accountUsername: c.account_username
+      ? Buffer.isBuffer(c.account_username)
+        ? c.account_username.toString("utf8")
+        : String(c.account_username)
+      : null,
     url: c.url,
     notes: c.notes,
     createdAt: c.created_at,
@@ -26,17 +30,18 @@ export async function createCredential(req, res) {
   const userId = Number(req.user.id);
   const { serviceName, accountUsername, password, url, notes } = req.body;
   if (!serviceName || !accountUsername || !password)
-    return res
-      .status(400)
-      .json({
-        message: "serviceName, accountUsername y password son requeridos",
-      });
+    return res.status(400).json({
+      message: "serviceName, accountUsername y password son requeridos",
+    });
   const encrypted = encrypt(password);
   const created = await prisma.credential.create({
     data: {
       user_id: BigInt(userId),
       service_name: serviceName,
-      account_username: accountUsername,
+      // store account username and encrypted password as bytes/blobs
+      account_username: accountUsername
+        ? Buffer.from(String(accountUsername), "utf8")
+        : null,
       password_encrypted: encrypted,
       url,
       notes,
@@ -86,7 +91,8 @@ export async function updateCredential(req, res) {
   const { serviceName, accountUsername, password, url, notes } = req.body;
   const data = {};
   if (serviceName) data.service_name = serviceName;
-  if (accountUsername) data.account_username = accountUsername;
+  if (accountUsername)
+    data.account_username = Buffer.from(String(accountUsername), "utf8");
   if (password) data.password_encrypted = encrypt(password);
   if (url !== undefined) data.url = url;
   if (notes !== undefined) data.notes = notes;

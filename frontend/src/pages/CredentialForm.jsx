@@ -28,7 +28,11 @@ export default function CredentialForm({ editMode }) {
   async function handleSubmit(e) {
     e.preventDefault();
     setError(null);
-    if (!form.serviceName || !form.accountUsername || !form.password)
+    if (
+      !form.serviceName ||
+      !form.accountUsername ||
+      (!editMode && !form.password)
+    )
       return setError("serviceName, accountUsername y password son requeridos");
     setLoading(true);
     try {

@@ -1,8 +1,18 @@
 const BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-function handleRes(res) {
-  if (!res.ok) return res.json().then((e) => Promise.reject(e));
-  return res.json();
+async function handleRes(res) {
+  if (!res.ok) {
+    const text = await res.text();
+    try {
+      const err = text ? JSON.parse(text) : { message: res.statusText };
+      return Promise.reject(err);
+    } catch (e) {
+      return Promise.reject({ message: text || res.statusText });
+    }
+  }
+  if (res.status === 204) return null;
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
 }
 
 export async function login({ username, password }) {
@@ -31,6 +41,14 @@ export async function getCredentials(query) {
 
 export async function getCredential(id) {
   const res = await fetch(`${BASE}/credentials/${id}`, {
+    headers: authHeader(),
+  });
+  return handleRes(res);
+}
+
+export async function revealCredential(id) {
+  const res = await fetch(`${BASE}/credentials/${id}/reveal`, {
+    method: "POST",
     headers: authHeader(),
   });
   return handleRes(res);
