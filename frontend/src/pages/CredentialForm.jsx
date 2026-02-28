@@ -51,69 +51,91 @@ export default function CredentialForm({ editMode }) {
     setForm((prev) => ({ ...prev, [k]: v }));
   }
 
+  // Calcular fuerza de contraseña
+  const getPasswordStrength = () => {
+    if (!form.password) return null;
+    let strength = 0;
+    if (form.password.length >= 8) strength++;
+    if (/[A-Z]/.test(form.password)) strength++;
+    if (/[0-9]/.test(form.password)) strength++;
+    if (/[^A-Za-z0-9]/.test(form.password)) strength++;
+    return strength;
+  };
+
+  const passwordStrength = getPasswordStrength();
+  const strengthText = {
+    0: { text: "Muy débil", color: "#f28b82" },
+    1: { text: "Débil", color: "#f28b82" },
+    2: { text: "Media", color: "#f5b87e" },
+    3: { text: "Fuerte", color: "#8ccf9d" },
+    4: { text: "Muy fuerte", color: "#8ccf9d" },
+  };
+
   if (loading && editMode) {
     return (
-      <div className="container">
-        <div className="loading-spinner">Cargando credencial...</div>
+      <div className="form-container">
+        <div className="form-loading">
+          <div className="spinner-large"></div>
+          <p>Cargando credencial...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container">
+    <div className="form-container">
       <div className="form-header">
-        <button className="btn back-button" onClick={() => navigate(-1)}>
+        <button className="form-back" onClick={() => navigate(-1)}>
           ← Volver
         </button>
-        <h2 className="form-title">
+        <h1 className="form-title">
           {editMode ? "✏️ Editar" : "➕ Crear"} credencial
-        </h2>
+        </h1>
       </div>
 
-      <form onSubmit={handleSubmit} className="card form-card">
+      <form onSubmit={handleSubmit} className="form-card">
+        {/* Información básica */}
         <div className="form-section">
-          <h3 className="section-title">Información básica</h3>
+          <h2 className="section-title">Información básica</h2>
 
           <div className="form-group">
             <label className="form-label">
-              <span className="label-text">Nombre del servicio</span>
+              Nombre del servicio
               <span className="required">*</span>
             </label>
-            <div className="input-wrapper">
-              <input
-                className="form-input"
-                value={form.serviceName}
-                onChange={(e) => setField("serviceName", e.target.value)}
-                placeholder="Ej: Gmail, Netflix, GitHub..."
-                autoFocus
-              />
-            </div>
+            <input
+              type="text"
+              className="form-input"
+              value={form.serviceName}
+              onChange={(e) => setField("serviceName", e.target.value)}
+              placeholder="Ej: Gmail, Netflix, GitHub..."
+              autoFocus
+            />
           </div>
 
           <div className="form-group">
             <label className="form-label">
-              <span className="label-text">Usuario / Email</span>
+              Usuario / Email
               <span className="required">*</span>
             </label>
-            <div className="input-wrapper">
-              <input
-                className="form-input"
-                value={form.accountUsername}
-                onChange={(e) => setField("accountUsername", e.target.value)}
-                placeholder="usuario@email.com"
-              />
-            </div>
+            <input
+              type="text"
+              className="form-input"
+              value={form.accountUsername}
+              onChange={(e) => setField("accountUsername", e.target.value)}
+              placeholder="usuario@email.com"
+            />
           </div>
 
           <div className="form-group">
             <label className="form-label">
-              <span className="label-text">Contraseña</span>
+              Contraseña
               {!editMode && <span className="required">*</span>}
             </label>
-            <div className="password-input-wrapper">
+            <div className="password-field">
               <input
-                className="form-input password-input"
                 type={showPassword ? "text" : "password"}
+                className="form-input password-input"
                 value={form.password}
                 onChange={(e) => setField("password", e.target.value)}
                 placeholder={
@@ -122,15 +144,40 @@ export default function CredentialForm({ editMode }) {
               />
               <button
                 type="button"
-                className="password-toggle-btn"
+                className="password-toggle"
                 onClick={() => setShowPassword(!showPassword)}
-                title={
-                  showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
-                }
+                title={showPassword ? "Ocultar" : "Mostrar"}
               >
                 {showPassword ? "👁️" : "👁️‍🗨️"}
               </button>
             </div>
+
+            {form.password && (
+              <div className="password-strength">
+                <div className="strength-bars">
+                  {[1, 2, 3, 4].map((level) => (
+                    <div
+                      key={level}
+                      className="strength-bar"
+                      style={{
+                        backgroundColor:
+                          level <= passwordStrength
+                            ? strengthText[passwordStrength]?.color
+                            : "var(--border-color)",
+                        width: "25%",
+                      }}
+                    />
+                  ))}
+                </div>
+                <span
+                  className="strength-text"
+                  style={{ color: strengthText[passwordStrength]?.color }}
+                >
+                  {strengthText[passwordStrength]?.text}
+                </span>
+              </div>
+            )}
+
             {editMode && (
               <span className="field-hint">
                 Deja este campo vacío si no quieres cambiar la contraseña
@@ -139,39 +186,37 @@ export default function CredentialForm({ editMode }) {
           </div>
         </div>
 
+        {/* Información adicional */}
         <div className="form-section">
-          <h3 className="section-title">Información adicional</h3>
+          <h2 className="section-title">Información adicional</h2>
 
           <div className="form-group">
             <label className="form-label">URL del sitio</label>
-            <div className="input-wrapper">
-              <input
-                className="form-input"
-                value={form.url}
-                onChange={(e) => setField("url", e.target.value)}
-                placeholder="https://ejemplo.com"
-              />
-            </div>
+            <input
+              type="url"
+              className="form-input"
+              value={form.url}
+              onChange={(e) => setField("url", e.target.value)}
+              placeholder="https://ejemplo.com"
+            />
           </div>
 
           <div className="form-group">
             <label className="form-label">Notas</label>
-            <div className="input-wrapper">
-              <textarea
-                className="form-textarea"
-                value={form.notes}
-                onChange={(e) => setField("notes", e.target.value)}
-                placeholder="Información adicional, instrucciones, etc..."
-                rows="4"
-              />
-            </div>
+            <textarea
+              className="form-textarea"
+              value={form.notes}
+              onChange={(e) => setField("notes", e.target.value)}
+              placeholder="Información adicional, instrucciones, etc..."
+              rows="4"
+            />
           </div>
         </div>
 
         {error && (
           <div className="error-message">
             <span className="error-icon">⚠️</span>
-            {error}
+            <span>{error}</span>
           </div>
         )}
 
@@ -197,51 +242,77 @@ export default function CredentialForm({ editMode }) {
       </form>
 
       <style jsx>{`
-        .container {
-          max-width: 800px;
-          margin: 2rem auto;
-          padding: 0 1rem;
+        .form-container {
+          min-height: calc(100vh - 73px);
+          background: var(--bg-primary, #0a0c10);
+          padding: 2rem;
+        }
+
+        .form-loading {
+          text-align: center;
+          padding: 3rem;
+          color: var(--text-secondary, #9aa3b4);
+        }
+
+        .spinner-large {
+          display: inline-block;
+          width: 2rem;
+          height: 2rem;
+          border: 3px solid var(--border-color, #2a2f38);
+          border-radius: 50%;
+          border-top-color: var(--accent-primary, #6d8df2);
+          animation: spin 0.8s linear infinite;
+          margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+          to {
+            transform: rotate(360deg);
+          }
         }
 
         .form-header {
-          margin-bottom: 2rem;
+          max-width: 800px;
+          margin: 0 auto 2rem;
         }
 
-        .back-button {
-          background: none;
-          border: 1px solid #ddd;
-          color: #666;
+        .form-back {
+          background: transparent;
+          border: 1px solid var(--border-color, #2a2f38);
+          color: var(--text-secondary, #9aa3b4);
           padding: 0.5rem 1rem;
-          margin-bottom: 1rem;
+          border-radius: 6px;
+          cursor: pointer;
           font-size: 0.9rem;
           transition: all 0.2s;
-          cursor: pointer;
-          border-radius: 4px;
+          margin-bottom: 1rem;
         }
 
-        .back-button:hover {
-          background: #f5f5f5;
-          border-color: #999;
+        .form-back:hover {
+          border-color: var(--accent-primary, #6d8df2);
+          color: var(--text-primary, #e4e6eb);
         }
 
         .form-title {
-          margin: 0;
-          color: #333;
+          color: var(--text-primary, #e4e6eb);
           font-size: 2rem;
+          margin: 0;
           font-weight: 600;
         }
 
         .form-card {
-          background: white;
-          border-radius: 16px;
-          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+          max-width: 800px;
+          margin: 0 auto;
+          background: var(--bg-card, #1a1e24);
+          border: 1px solid var(--border-color, #2a2f38);
+          border-radius: 12px;
           padding: 2rem;
         }
 
         .form-section {
-          margin-bottom: 2.5rem;
+          margin-bottom: 2rem;
           padding-bottom: 2rem;
-          border-bottom: 2px solid #f0f0f0;
+          border-bottom: 1px solid var(--border-color, #2a2f38);
         }
 
         .form-section:last-of-type {
@@ -251,7 +322,7 @@ export default function CredentialForm({ editMode }) {
         }
 
         .section-title {
-          color: #2c3e50;
+          color: var(--text-primary, #e4e6eb);
           font-size: 1.25rem;
           margin: 0 0 1.5rem 0;
           font-weight: 600;
@@ -261,48 +332,47 @@ export default function CredentialForm({ editMode }) {
           margin-bottom: 1.5rem;
         }
 
+        .form-group:last-child {
+          margin-bottom: 0;
+        }
+
         .form-label {
           display: block;
           margin-bottom: 0.5rem;
+          color: var(--text-secondary, #9aa3b4);
+          font-size: 0.95rem;
           font-weight: 500;
-          color: #4a5568;
-        }
-
-        .label-text {
-          color: #2d3748;
         }
 
         .required {
-          color: #e53e3e;
+          color: var(--danger, #f28b82);
           margin-left: 0.25rem;
-        }
-
-        .input-wrapper {
-          position: relative;
         }
 
         .form-input {
           width: 100%;
           padding: 0.75rem 1rem;
-          border: 2px solid #e2e8f0;
+          background: var(--bg-primary, #0a0c10);
+          border: 1px solid var(--border-color, #2a2f38);
           border-radius: 8px;
+          color: var(--text-primary, #e4e6eb);
           font-size: 1rem;
           transition: all 0.2s;
-          background: #f8fafc;
+          box-sizing: border-box;
         }
 
         .form-input:focus {
           outline: none;
-          border-color: #4299e1;
-          background: white;
-          box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+          border-color: var(--accent-primary, #6d8df2);
+          box-shadow: 0 0 0 2px rgba(109, 141, 242, 0.1);
         }
 
         .form-input::placeholder {
-          color: #a0aec0;
+          color: var(--text-secondary, #9aa3b4);
+          opacity: 0.5;
         }
 
-        .password-input-wrapper {
+        .password-field {
           position: relative;
           display: flex;
           align-items: center;
@@ -312,7 +382,7 @@ export default function CredentialForm({ editMode }) {
           padding-right: 3rem;
         }
 
-        .password-toggle-btn {
+        .password-toggle {
           position: absolute;
           right: 0.75rem;
           background: none;
@@ -320,45 +390,75 @@ export default function CredentialForm({ editMode }) {
           cursor: pointer;
           font-size: 1.2rem;
           padding: 0.25rem;
-          color: #718096;
+          color: var(--text-secondary, #9aa3b4);
           transition: color 0.2s;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
 
-        .password-toggle-btn:hover {
-          color: #2d3748;
+        .password-toggle:hover {
+          color: var(--accent-primary, #6d8df2);
+        }
+
+        .password-strength {
+          margin-top: 0.75rem;
+        }
+
+        .strength-bars {
+          display: flex;
+          gap: 0.25rem;
+          margin-bottom: 0.25rem;
+        }
+
+        .strength-bar {
+          height: 4px;
+          border-radius: 2px;
+          transition: background-color 0.3s;
+        }
+
+        .strength-text {
+          font-size: 0.85rem;
+          font-weight: 500;
         }
 
         .form-textarea {
           width: 100%;
           padding: 0.75rem 1rem;
-          border: 2px solid #e2e8f0;
+          background: var(--bg-primary, #0a0c10);
+          border: 1px solid var(--border-color, #2a2f38);
           border-radius: 8px;
+          color: var(--text-primary, #e4e6eb);
           font-size: 1rem;
           transition: all 0.2s;
-          background: #f8fafc;
           resize: vertical;
           font-family: inherit;
+          box-sizing: border-box;
         }
 
         .form-textarea:focus {
           outline: none;
-          border-color: #4299e1;
-          background: white;
-          box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+          border-color: var(--accent-primary, #6d8df2);
+          box-shadow: 0 0 0 2px rgba(109, 141, 242, 0.1);
+        }
+
+        .form-textarea::placeholder {
+          color: var(--text-secondary, #9aa3b4);
+          opacity: 0.5;
         }
 
         .field-hint {
           display: block;
           margin-top: 0.5rem;
-          font-size: 0.875rem;
-          color: #718096;
+          color: var(--text-secondary, #9aa3b4);
+          font-size: 0.85rem;
           font-style: italic;
         }
 
         .error-message {
-          background: #fff5f5;
-          border: 2px solid #feb2b2;
-          color: #c53030;
+          background: rgba(242, 139, 130, 0.1);
+          border: 1px solid var(--danger, #f28b82);
+          color: var(--danger, #f28b82);
           padding: 1rem;
           border-radius: 8px;
           margin: 1.5rem 0;
@@ -368,19 +468,20 @@ export default function CredentialForm({ editMode }) {
         }
 
         .error-icon {
-          font-size: 1.25rem;
+          font-size: 1.2rem;
         }
 
         .form-actions {
           display: flex;
           gap: 1rem;
-          justify-content: flex-end;
           margin-top: 2rem;
           padding-top: 1rem;
+          border-top: 1px solid var(--border-color, #2a2f38);
         }
 
         .btn {
-          padding: 0.75rem 1.5rem;
+          flex: 1;
+          padding: 0.875rem;
           border-radius: 8px;
           font-size: 1rem;
           font-weight: 500;
@@ -389,39 +490,38 @@ export default function CredentialForm({ editMode }) {
           border: none;
           display: inline-flex;
           align-items: center;
+          justify-content: center;
           gap: 0.5rem;
         }
 
         .btn-primary {
-          background: #4299e1;
+          background: linear-gradient(
+            135deg,
+            var(--accent-primary, #6d8df2),
+            var(--accent-secondary, #a37ef2)
+          );
           color: white;
         }
 
         .btn-primary:hover:not(:disabled) {
-          background: #3182ce;
+          opacity: 0.9;
           transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
         }
 
         .btn-primary:disabled {
-          opacity: 0.6;
+          opacity: 0.5;
           cursor: not-allowed;
         }
 
         .btn-secondary {
-          background: #e2e8f0;
-          color: #4a5568;
+          background: transparent;
+          border: 1px solid var(--border-color, #2a2f38);
+          color: var(--text-secondary, #9aa3b4);
         }
 
         .btn-secondary:hover {
-          background: #cbd5e0;
-        }
-
-        .loading-spinner {
-          text-align: center;
-          padding: 3rem;
-          color: #718096;
-          font-size: 1.2rem;
+          border-color: var(--accent-primary, #6d8df2);
+          color: var(--text-primary, #e4e6eb);
         }
 
         .spinner {
@@ -434,25 +534,37 @@ export default function CredentialForm({ editMode }) {
           animation: spin 0.8s linear infinite;
         }
 
-        @keyframes spin {
-          to {
-            transform: rotate(360deg);
-          }
-        }
-
         /* Responsive */
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
+          .form-container {
+            padding: 1rem;
+          }
+
           .form-card {
             padding: 1.5rem;
           }
 
+          .form-title {
+            font-size: 1.5rem;
+          }
+
           .form-actions {
-            flex-direction: column-reverse;
+            flex-direction: column;
           }
 
           .btn {
             width: 100%;
-            justify-content: center;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .form-section {
+            padding-bottom: 1.5rem;
+          }
+
+          .section-title {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
           }
         }
       `}</style>
