@@ -1,8 +1,10 @@
+// src/components/Nav.jsx
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 export default function Nav() {
   const navigate = useNavigate();
+  const location = useLocation();
   const token = localStorage.getItem("mv_token");
 
   function logout() {
@@ -12,20 +14,39 @@ export default function Nav() {
 
   return (
     <header className="nav">
-      <div className="container nav-inner">
-        <Link to="/">Mini Vault</Link>
-        <nav>
+      <div className="nav-container">
+        <Link to="/" className="nav-logo">
+          <span>🔐</span>
+          <span>Mini Vault</span>
+        </Link>
+
+        <nav className="nav-links">
           {token ? (
             <>
-              <Link to="/credentials">Credenciales</Link>
-              <button className="btn" onClick={logout}>
+              <Link
+                to="/credentials"
+                className={`nav-link ${location.pathname === "/credentials" ? "active" : ""}`}
+              >
+                Credenciales
+              </Link>
+              <button className="nav-link" onClick={logout}>
                 Cerrar sesión
               </button>
             </>
           ) : (
             <>
-              <Link to="/login">Entrar</Link>
-              <Link to="/register">Registro</Link>
+              <Link
+                to="/login"
+                className={`nav-link ${location.pathname === "/login" ? "active" : ""}`}
+              >
+                Entrar
+              </Link>
+              <Link
+                to="/register"
+                className={`nav-link ${location.pathname === "/register" ? "active" : ""}`}
+              >
+                Registro
+              </Link>
             </>
           )}
         </nav>

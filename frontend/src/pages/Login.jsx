@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { login } from "../api";
 
 export default function Login() {
@@ -7,6 +7,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   async function handleSubmit(e) {
@@ -32,29 +33,66 @@ export default function Login() {
   }
 
   return (
-    <div className="container">
-      <h2>Iniciar sesión</h2>
-      <form onSubmit={handleSubmit} className="card">
-        <label>
-          Email/Usuario
-          <input
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-        </label>
-        <label>
-          Contraseña
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </label>
-        {error && <div className="error">{error}</div>}
-        <button disabled={loading} className="btn primary">
-          {loading ? "Cargando..." : "Entrar"}
-        </button>
-      </form>
+    <div className="auth-container">
+      <div className="auth-card">
+        <div className="auth-header">
+          <div className="auth-icon">🔐</div>
+          <h1 className="auth-title">Iniciar sesión</h1>
+          <p className="auth-subtitle">
+            Ingresa tus credenciales para continuar
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="auth-form">
+          <div className="form-group">
+            <label className="form-label">Usuario o Email</label>
+            <input
+              type="text"
+              className="form-input"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="usuario@ejemplo.com"
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Contraseña</label>
+            <div className="password-field">
+              <input
+                type={showPassword ? "text" : "password"}
+                className="form-input password-input"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+              />
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? "👁️" : "👁️‍🗨️"}
+              </button>
+            </div>
+          </div>
+
+          {error && (
+            <div className="error-message">
+              <span>⚠️</span>
+              <span>{error}</span>
+            </div>
+          )}
+
+          <button type="submit" className="auth-button" disabled={loading}>
+            {loading ? "Iniciando sesión..." : "Iniciar sesión"}
+          </button>
+
+          <div className="auth-footer">
+            <p>
+              ¿No tienes una cuenta? <Link to="/register">Regístrate</Link>
+            </p>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

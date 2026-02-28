@@ -1,3 +1,4 @@
+// src/pages/CredentialDetail.jsx (opcional, para mantener el estilo)
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getCredential, revealCredential } from "../api";
@@ -19,66 +20,129 @@ export default function CredentialDetail() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  if (loading) return <div className="container">Cargando...</div>;
-  if (error) return <div className="container error">{error}</div>;
-  if (!item) return <div className="container muted">No encontrado</div>;
+  if (loading) return <div className="container loading">Cargando...</div>;
+  if (error) return <div className="container error-message">{error}</div>;
+  if (!item) return <div className="container loading">No encontrado</div>;
 
   return (
     <div className="container">
-      <h2>{item.serviceName}</h2>
-      <div className="card detail">
-        <div>
-          <strong>Usuario:</strong> {item.accountUsername}
+      <div style={{ marginBottom: "2rem" }}>
+        <button className="btn" onClick={() => navigate(-1)}>
+          ← Volver
+        </button>
+      </div>
+
+      <div
+        className="auth-card"
+        style={{ maxWidth: "600px", margin: "0 auto" }}
+      >
+        <div className="auth-header">
+          <div className="auth-icon">🔑</div>
+          <h1 className="auth-title">{item.serviceName}</h1>
         </div>
-        <div>
-          <strong>Contraseña:</strong>
-          <span className="pw">
-            {showPassword ? revealedPassword || "-" : "••••••••"}
-          </span>
-          <button
-            className="btn small"
-            onClick={async () => {
-              if (showPassword) {
-                setShowPassword(false);
-                setRevealedPassword(null);
-                return;
-              }
-              setRevealing(true);
-              try {
-                const data = await revealCredential(id);
-                setRevealedPassword(data.password);
-                setShowPassword(true);
-              } catch (e) {
-                setError(e.message || "Error mostrando contraseña");
-              } finally {
-                setRevealing(false);
-              }
-            }}
-            disabled={revealing}
-          >
-            {showPassword ? "Ocultar" : revealing ? "Cargando..." : "Mostrar"}
-          </button>
-        </div>
-        <div>
-          <strong>URL:</strong> {item.url || "-"}
-        </div>
-        <div>
-          <strong>Notas:</strong> {item.notes || "-"}
-        </div>
-        <div>
-          <strong>Última actualización:</strong>{" "}
-          {item.updatedAt ? new Date(item.updatedAt).toLocaleString() : "-"}
-        </div>
-        <div className="form-actions">
-          <button className="btn" onClick={() => navigate(-1)}>
-            Volver
-          </button>
-          <button
-            className="btn"
-            onClick={() => navigate(`/credentials/${id}/edit`)}
-          >
-            Editar
-          </button>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          <div className="form-group">
+            <label className="form-label">Usuario</label>
+            <div
+              className="form-input"
+              style={{ background: "var(--bg-card)" }}
+            >
+              {item.accountUsername}
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Contraseña</label>
+            <div className="password-field">
+              <div
+                className="form-input password-input"
+                style={{ background: "var(--bg-card)" }}
+              >
+                {showPassword ? revealedPassword || "-" : "••••••••"}
+              </div>
+              <button
+                className="password-toggle"
+                onClick={async () => {
+                  if (showPassword) {
+                    setShowPassword(false);
+                    setRevealedPassword(null);
+                    return;
+                  }
+                  setRevealing(true);
+                  try {
+                    const data = await revealCredential(id);
+                    setRevealedPassword(data.password);
+                    setShowPassword(true);
+                  } catch (e) {
+                    setError(e.message);
+                  } finally {
+                    setRevealing(false);
+                  }
+                }}
+              >
+                {showPassword ? "👁️" : "👁️‍🗨️"}
+              </button>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">URL</label>
+            <div
+              className="form-input"
+              style={{ background: "var(--bg-card)" }}
+            >
+              {item.url ? (
+                <a
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="url-link"
+                >
+                  {item.url}
+                </a>
+              ) : (
+                "-"
+              )}
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Notas</label>
+            <div
+              className="form-input"
+              style={{ background: "var(--bg-card)", minHeight: "80px" }}
+            >
+              {item.notes || "-"}
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Última actualización</label>
+            <div
+              className="form-input"
+              style={{ background: "var(--bg-card)" }}
+            >
+              {item.updatedAt ? new Date(item.updatedAt).toLocaleString() : "-"}
+            </div>
+          </div>
+
+          <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+            <button
+              className="btn btn-primary"
+              onClick={() => navigate(`/credentials/${id}/edit`)}
+              style={{ flex: 1 }}
+            >
+              Editar
+            </button>
+            <button
+              className="btn"
+              onClick={() => navigate(-1)}
+              style={{ flex: 1 }}
+            >
+              Volver
+            </button>
+          </div>
         </div>
       </div>
     </div>
