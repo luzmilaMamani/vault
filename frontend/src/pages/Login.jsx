@@ -36,7 +36,6 @@ export default function Login() {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
-          <div className="auth-icon">🔐</div>
           <h1 className="auth-title">Iniciar sesión</h1>
           <p className="auth-subtitle">
             Ingresa tus credenciales para continuar

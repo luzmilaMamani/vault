@@ -1,4 +1,3 @@
-// src/pages/CredentialsList.jsx
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getCredentials, deleteCredential } from "../api";
@@ -55,18 +54,7 @@ export default function CredentialsList() {
       </div>
 
       <form onSubmit={handleSearch} className="search-box">
-        <div className="search-wrapper">
-          <input
-            type="text"
-            className="search-input"
-            placeholder="Buscar por servicio..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-          <button type="submit" className="btn">
-            Buscar
-          </button>
-        </div>
+        <div className="search-wrapper"></div>
       </form>
 
       {loading && <div className="loading">Cargando credenciales...</div>}

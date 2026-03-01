@@ -1,4 +1,3 @@
-// src/components/Nav.jsx
 import React from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 
@@ -16,7 +15,6 @@ export default function Nav() {
     <header className="nav">
       <div className="nav-container">
         <Link to="/" className="nav-logo">
-          <span>🔐</span>
           <span>Mini Vault</span>
         </Link>
 

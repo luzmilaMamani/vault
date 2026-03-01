@@ -74,7 +74,6 @@ export default function Register() {
     <div className="register-container">
       <div className="register-card">
         <div className="register-header">
-          <div className="logo">✨</div>
           <h1 className="register-title">Crear cuenta</h1>
           <p className="register-subtitle">
             Comienza a gestionar tus contraseñas de forma segura
@@ -84,7 +83,7 @@ export default function Register() {
         <form onSubmit={handleSubmit} className="register-form">
           <div className="form-group">
             <label className="form-label">
-              <span className="label-icon">📧</span>
+              <span className="label-icon"></span>
               Email
             </label>
             <div className="input-wrapper">
@@ -101,7 +100,7 @@ export default function Register() {
 
           <div className="form-group">
             <label className="form-label">
-              <span className="label-icon">🔒</span>
+              <span className="label-icon"></span>
               Contraseña
             </label>
             <div className="password-input-wrapper">
@@ -212,21 +211,6 @@ export default function Register() {
               </Link>
             </p>
           </div>
-
-          <div className="terms">
-            <p className="terms-text">
-              Al registrarte, aceptas nuestros
-              <a href="#" className="terms-link">
-                {" "}
-                Términos de servicio
-              </a>{" "}
-              y
-              <a href="#" className="terms-link">
-                {" "}
-                Política de privacidad
-              </a>
-            </p>
-          </div>
         </form>
       </div>
 
@@ -236,7 +220,7 @@ export default function Register() {
           display: flex;
           align-items: center;
           justify-content: center;
-          background: linear-gradient(135deg, #48bb78 0%, #2c7a4d 100%);
+          background: linear-gradient(135deg, #000000 0%, #361855 100%);
           padding: 1rem;
         }
 
